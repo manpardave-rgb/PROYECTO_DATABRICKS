@@ -17,8 +17,8 @@ jobs:
       run: |
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
-        NOTEBOOK_BASE="/Workspace/Users/loincognoscible@gmail.com/PROYECTO_DATABRICKS"
-        NOTEBOOKS=("clase_cicd" "resultado")  # Agrega más según necesitesas
+        NOTEBOOK_BASE="/Workspace/Users/loincognoscible@gmail.com/PROYECTO_DATABRICKS/proceso"
+        NOTEBOOKS=("Preparacion_Ambiente" "Ingest_circuits_data" "Ingest_racing_data" "Transform" "Load")  # Agrega más según necesitesas
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
@@ -32,7 +32,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/py/scripts/main"
+        DEST_BASE="/proyecto/smartdata"
         for file in notebooks_to_deploy/*.py; do
           name=$(basename "$file" .py)
           dest_path="$DEST_BASE/$name"
@@ -127,32 +127,108 @@ jobs:
           "format": "MULTI_TASK",
           "tasks": [
             {
-              "task_key": "clase_cicd",
-              "description": "Ejecuta notebook clase_cicd",
+              "task_key": "Preparacion_Ambiente",
+              "description": "Ejecuta notebook Preparacion_Ambiente con parámetros",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/clase_cicd",
-                "source": "WORKSPACE"
+                "notebook_path": "/proyecto/smartdata/Preparacion_Ambiente",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "storageLocation": "storage"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2
             },
             {
-              "task_key": "resultado",
-              "description": "Ejecuta notebook resultado",
+              "task_key": "Ingest_circuits_data",
+              "description": "Ejecuta notebook Ingest_circuits_data con parámetros",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/resultado",
-                "source": "WORKSPACE"
+                "notebook_path": "/proyecto/smartdata/Ingest_circuits_data",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw",
+                  "catalogo": "catalog_au",
+                  "esquema": "bronze",
+                  "storageName": "adlsantodata1703"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2,
               "depends_on": [
                 {
-                  "task_key": "clase_cicd"
+                  "task_key": "Preparacion_Ambiente"
                 }
               ]
-            }
+            },
+            {
+              "task_key": "Ingest_racing_data",
+              "description": "Ejecuta notebook Ingest_racing_data con parámetros",
+              "notebook_task": {
+                "notebook_path": "/proyecto/smartdata/Ingest_racing_data",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw",
+                  "catalogo": "catalog_au",
+                  "esquema": "bronze",
+                  "storageName": "adlsantodata1703"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Preparacion_Ambiente"
+                }
+              ]
+            },
+            {
+              "task_key": "Transform",
+              "description": "Ejecuta notebook Transform con parámetros",
+              "notebook_task": {
+                "notebook_path": "/proyecto/smartdata/Transform",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_au",
+                  "esquema_source": "bronze",
+                  "esquema_sink": "silver"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Ingest_circuits_data"
+                },
+                                {
+                  "task_key": "Ingest_racing_data"
+                }
+              ]
+            },
+              {
+              "task_key": "Load",
+              "description": "Ejecuta notebook Load con parámetros",
+              "notebook_task": {
+                "notebook_path": "/proyecto/smartdata/Load",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_au",
+                  "esquema_source": "silver",
+                  "esquema_sink": "golden"
+                }
+              },
+              "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Transform"
+                }
+              ]
+            }  
           ],
           "schedule": {
             "quartz_cron_expression": "0 0 8 * * ?",
