@@ -133,7 +133,7 @@ jobs:
                 "notebook_path": "/proyecto/smartdata/Preparacion_Ambiente",
                 "source": "WORKSPACE",
                 "base_parameters": {
-                  "storageLocation": "storage"
+                  "storageName": "adlsantodata1703"
                 }
               },
               "existing_cluster_id": "$CLUSTER_ID",
