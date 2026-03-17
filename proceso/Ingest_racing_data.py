@@ -20,7 +20,7 @@ catalogo = dbutils.widgets.get("catalogo")
 esquema = dbutils.widgets.get("esquema")
 storageName = dbutils.widgets.get("storageName")
 
-ruta = f"abfss://{container}@{storageLocation}.dfs.core.windows.net/races.csv"
+ruta = f"abfss://{container}@{storageName}.dfs.core.windows.net/races.csv"
 
 # COMMAND ----------
 
@@ -54,8 +54,4 @@ races_selected_df = races_with_timestamp_df.select(col('raceId').alias('race_id'
 
 # COMMAND ----------
 
-races_selected_df.write.mode('overwrite').insertInto(f'{catalogo}.{esquema}.races')
-
-# COMMAND ----------
-
-#races_selected_df.write.mode('overwrite').partitionBy("race_year").save("/Volumes/catalog_smartdata/raw/datasets/partition_df")
+races_selected_df.write.mode('overwrite').partitionBy('race_year').saveAsTable(f'{catalogo}.{esquema}.races')
