@@ -21,7 +21,7 @@ catalogo = dbutils.widgets.get("catalogo")
 esquema = dbutils.widgets.get("esquema")
 storageName = dbutils.widgets.get("storageName")
 
-ruta = f"abfss://{container}@{storageLocation}.dfs.core.windows.net/circuits.csv"
+ruta = f"abfss://{container}@{storageName}.dfs.core.windows.net/circuits.csv"
 
 # COMMAND ----------
 
