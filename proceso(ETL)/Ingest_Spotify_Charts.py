@@ -3,8 +3,8 @@ dbutils.widgets.removeAll()
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DateType
-from pyspark.sql.functions import current_timestamp, to_timestamp, concat, col, lit
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DateType, DoubleType, BooleanType
+from pyspark.sql.functions import current_timestamp, to_date, col, lit
 
 # COMMAND ----------
 
@@ -56,17 +56,19 @@ charts_with_timestamp_df = charts_df.withColumn("ingestion_date", current_timest
 # COMMAND ----------
 
 charts_selected_df = charts_with_timestamp_df.select(
+                                                        col("wrapped_2025_rank").cast("string").alias("track_id"),
                                                         col("wrapped_2025_rank").alias("rank"),
-                                                        col("song_title").alias("track_name"),
-                                                        col("artist").alias("artist_name"),
-                                                        col("streams_2025_billions").alias("streams"),
                                                         col("artist_country").alias("country"),
-                                                        to_date(lit("2025-12-31")).alias("snapshot_date"), 
-                                                        col("ingestion_date") # Aquí simplemente llamamos a la columna que ya existe
+                                                        col("streams_2025_billions").alias("streams"),
+                                                        to_date(lit("2025-12-31")).alias("snapshot_date"),
+                                                        col("ingestion_date")
 )
 
 # COMMAND ----------
 
-charts_selected_df.write.mode('overwrite') \
+destino = f"{catalogo}.{esquema}.spotify_daily_charts"
+
+charts_selected_df.write.mode('append') \
     .partitionBy('snapshot_date') \
-    .saveAsTable(f"{catalogo}.{esquema}.spotify_daily_charts")
+    .saveAsTable(destino)
+print(f"Carga exitosa en {destino}")
