@@ -17,8 +17,8 @@ jobs:
       run: |
         ORIGIN_HOST=${{ secrets.DATABRICKS_ORIGIN_HOST }}
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
-        NOTEBOOK_BASE="/Workspace/Users/loincognoscible@gmail.com/PROYECTO_DATABRICKS/proceso"
-        NOTEBOOKS=("Preparacion_Ambiente" "Ingest_circuits_data" "Ingest_racing_data" "Transform" "Load")  # Agrega más según necesitesas
+        NOTEBOOK_BASE="/Workspace/Users/loincognoscible@gmail.com/PROYECTO_DATABRICKS/proceso(ETL)"
+        NOTEBOOKS=("Preparacion_Ambiente" "Ingest_Tracks_Data" "Ingest_Tracks_Data" "Transform" "Load")  # Agrega más según necesitesas
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
@@ -141,10 +141,10 @@ jobs:
               "max_retries": 2
             },
             {
-              "task_key": "Ingest_circuits_data",
-              "description": "Ejecuta notebook Ingest_circuits_data con parámetros",
+              "task_key": "Ingest_Tracks_Data",
+              "description": "Ejecuta notebook Ingest_Tracks_Data con parámetros",
               "notebook_task": {
-                "notebook_path": "/proyecto/smartdata/Ingest_circuits_data",
+                "notebook_path": "/proyecto/smartdata/Ingest_Tracks_Data",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "container": "raw",
@@ -163,10 +163,10 @@ jobs:
               ]
             },
             {
-              "task_key": "Ingest_racing_data",
-              "description": "Ejecuta notebook Ingest_racing_data con parámetros",
+              "task_key": "Ingest_Tracks_Data",
+              "description": "Ejecuta notebook Ingest_Tracks_Data con parámetros",
               "notebook_task": {
-                "notebook_path": "/proyecto/smartdata/Ingest_racing_data",
+                "notebook_path": "/proyecto/smartdata/Ingest_Tracks_Data",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "container": "raw",
@@ -201,10 +201,10 @@ jobs:
               "max_retries": 2,
               "depends_on": [
                 {
-                  "task_key": "Ingest_circuits_data"
+                  "task_key": "Ingest_Tracks_Data"
                 },
                                 {
-                  "task_key": "Ingest_racing_data"
+                  "task_key": "Ingest_Tracks_Data"
                 }
               ]
             },
