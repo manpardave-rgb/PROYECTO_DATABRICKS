@@ -83,4 +83,11 @@ tracks_final_df = df_tracks_final.withColumn("ingestion_date", current_timestamp
 
 # COMMAND ----------
 
-df_tracks_final.write.mode("append").insertInto("catalog_au.bronze.spotify_tracks")
+destino = f"{catalogo}.{esquema}.spotify_tracks"
+
+# Verificación de seguridad antes de insertar
+if len(df_tracks_final.columns) == 11:
+    df_tracks_final.write.mode("append").insertInto(destino)
+    print(f"Carga exitosa en {destino}")
+else:
+    print("Error: El número de columnas no coincide con la tabla Bronze (deben ser 11)")
