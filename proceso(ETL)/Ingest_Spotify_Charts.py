@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "4"
+# ///
 dbutils.widgets.removeAll()
 
 # COMMAND ----------
@@ -68,7 +72,8 @@ charts_selected_df = charts_with_timestamp_df.select(
 
 destino = f"{catalogo}.{esquema}.spotify_daily_charts"
 
-charts_selected_df.write.mode('append') \
+charts_selected_df.write \
+    .mode('overwrite') \
     .partitionBy('snapshot_date') \
     .saveAsTable(destino)
 print(f"Carga exitosa en {destino}")
