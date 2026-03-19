@@ -64,13 +64,7 @@ df_tracks_final = df_tracks.select(col("alltime_rank").cast("string").alias("tra
 
 # COMMAND ----------
 
-tracks_renamed_df = df_tracks_final.withColumnRenamed("trackId", "track_id") \
-                                            .withColumnRenamed("trackName", "track_name") \
-                                            .withColumnRenamed("artistName", "artist_name") \
-                                            .withColumnRenamed("albumName", "album_name") \
-                                            .withColumnRenamed("pop", "popularity") \
-                                            .withColumnRenamed("duration", "duration_ms") \
-                                            .withColumnRenamed("dance", "danceability")
+tracks_renamed_df = df_tracks_final
 
 # COMMAND ----------
 
@@ -79,15 +73,15 @@ print(f"Number of columns: {len(df_tracks_final.columns)}")
 # COMMAND ----------
 
 # DBTITLE 1,Add col with current timestamp 
-tracks_final_df = df_tracks_final.withColumn("ingestion_date", current_timestamp())
+tracks_final_df = tracks_renamed_df.withColumn("ingestion_date", current_timestamp())
 
 # COMMAND ----------
 
 destino = f"{catalogo}.{esquema}.spotify_tracks"
 
 # Verificación de seguridad antes de insertar
-if len(df_tracks_final.columns) == 11:
-    df_tracks_final.write.mode("append").insertInto(destino)
+if len(tracks_final_df.columns) == 11:
+    tracks_final_df.write.mode("append").saveAsTable(destino)
     print(f"Carga exitosa en {destino}")
 else:
-    print("Error: El número de columnas no coincide con la tabla Bronze (deben ser 11)")
+    print(f"Error: El número de columnas no coincide con la tabla Bronze (esperadas 11, encontradas {len(tracks_final_df.columns)})")
