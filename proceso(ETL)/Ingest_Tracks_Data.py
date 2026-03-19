@@ -81,7 +81,8 @@ destino = f"{catalogo}.{esquema}.spotify_tracks"
 
 # Verificación de seguridad antes de insertar
 if len(tracks_final_df.columns) == 11:
-    tracks_final_df.write.mode("append").saveAsTable(destino)
+    tracks_final_df.write.mode("overwrite").saveAsTable(destino)
     print(f"Carga exitosa en {destino}")
 else:
-    print(f"Error: El número de columnas no coincide con la tabla Bronze (esperadas 11, encontradas {len(tracks_final_df.columns)})")
+    print(f"Error: El número de columnas no coincide con la tabla Bronze "
+          f"(esperadas 11, encontradas {len(tracks_final_df.columns)})")
