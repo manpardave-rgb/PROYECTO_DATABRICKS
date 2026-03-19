@@ -141,10 +141,10 @@ jobs:
               "max_retries": 2
             },
             {
-              "task_key": "Ingest_Tracks_Data",
-              "description": "Ejecuta notebook Ingest_Tracks_Data con parámetros",
+              "task_key": "Ingest_Spotify_Charts",
+              "description": "Ejecuta notebook Ingest_Spotify_Charts con parámetros",
               "notebook_task": {
-                "notebook_path": "/proyecto/smartdata/Ingest_Tracks_Data",
+                "notebook_path": "/proyecto/smartdata/Ingest_Spotify_Charts",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "container": "raw",
@@ -204,7 +204,7 @@ jobs:
                   "task_key": "Ingest_Tracks_Data"
                 },
                                 {
-                  "task_key": "Ingest_Tracks_Data"
+                  "task_key": "Ingest_Spotify_Charts"
                 }
               ]
             },
