@@ -49,17 +49,19 @@ df_tracks = spark.read.option('header', True).schema(tracks_schema).csv(ruta)
 # COMMAND ----------
 
 # DBTITLE 1,select only specific cols
-df_tracks_final = df_tracks.select(col("alltime_rank").cast("string").alias("track_id"),
-                                    col("song_title").alias("track_name"),
-                                    col("artist").alias("artist_name"),
-                                    lit(None).cast("string").alias("album_name"),
-                                    col("total_streams_billions").cast("double").alias("popularity"),
-                                    lit(0).cast("long").alias("duration_ms"),
-                                    col("explicit").cast("boolean"),
-                                    col("release_year").cast("string").alias("release_date"),
-                                    col("danceability").cast("double"),
-                                    col("energy").cast("double"),
-                                    current_timestamp().alias("ingestion_date")
+df_tracks_final = df_tracks.select(
+    col("alltime_rank").cast("string").alias("track_id"),
+    col("song_title").alias("track_name"),
+    col("artist").alias("artist_name"),
+    lit(None).cast("string").alias("album_name"),
+    col("total_streams_billions").cast("double").alias("popularity"),
+    lit(0).cast("long").alias("duration_ms"),
+    col("explicit").cast("boolean"),
+    col("release_year").cast("string").alias("release_date"),
+    col("danceability").cast("double"),
+    col("energy").cast("double"),
+    col("bpm").cast("integer"),          # ← agregar esta línea
+    current_timestamp().alias("ingestion_date")
 )
 
 # COMMAND ----------
@@ -81,7 +83,10 @@ destino = f"{catalogo}.{esquema}.spotify_tracks"
 
 # Verificación de seguridad antes de insertar
 if len(tracks_final_df.columns) == 11:
-    tracks_final_df.write.mode("overwrite").saveAsTable(destino)
+    tracks_final_df.write \
+        .mode("overwrite") \
+        .option("overwriteSchema", "true") \
+        .saveAsTable(destino)
     print(f"Carga exitosa en {destino}")
 else:
     print(f"Error: El número de columnas no coincide con la tabla Bronze "
