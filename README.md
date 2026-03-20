@@ -222,14 +222,6 @@ En tu repositorio ve a: Settings → Secrets and variables → Actions
 | Monitor execution | Monitorea el estado cada 30 segundos por un maximo de 10 minutos |
 | Clean up | Elimina archivos temporales del runner |
 
-### Despliegue Manual desde GitHub
-
-1. Ir al tab `Actions` en el repositorio
-2. Seleccionar `Dynamic Databricks Notebook Deploy`
-3. Click en `Run workflow`
-4. Seleccionar rama `main`
-5. Click en `Run workflow`
-
 ---
 
 ## Monitoreo
