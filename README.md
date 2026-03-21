@@ -28,8 +28,37 @@ Golden Layer  (Agregaciones de negocio)
     |
 Dashboard Databricks (Visualizacion)
 ```
-
+![Texto descriptivo](Arquitectura.png)
 ---
+---
+## Servicios Aprovisionados en Azure
+
+
+| Servicio | Nombre | Tipo |
+|---|---|---|
+| Access Connector | ac-antodata | Access Connector for Azure Databricks |
+| Azure Databricks Dev | adbantodata1403 | Azure Databricks Service |
+| Azure Databricks Prod | adbantodata1503prod | Azure Databricks Service |
+| Data Factory | adfantodata2603 | Data Factory V2 |
+| Storage Account | adlsantodata1703 | Azure Data Lake Storage Gen2 |
+
+
+![Servicios Azure](./evidencias/azure_services.png)
+
+
+
+-----
+
+## Fuentes de Datos
+
+| Archivo | Descripcion | Columnas clave |
+|---|---|---|
+| `spotify_alltime_top100_songs.csv` | Ranking historico de canciones | alltime_rank, song_title, artist, total_streams_billions |
+| `spotify_wrapped_2025_top50_songs.csv` | Wrapped 2025 top 50 | wrapped_2025_rank, song_title, streams_2025_billions |
+
+Ubicacion en ADLS: `abfss://raw@adlsantodata1703.dfs.core.windows.net/`
+
+------
 
 ## Capas del Pipeline
 
@@ -75,28 +104,6 @@ Vistas para Dashboard:
 
 ---
 
-## Dashboard
-
-![Dashboard Spotify Analytics](./images/dashboard.jpg)
-
-El dashboard fue construido en Databricks con las siguientes visualizaciones:
-
-| Visualizacion | Tipo | Fuente |
-|---|---|---|
-| Total canciones | Counter | `spotify_transformed` |
-| Cancion mas escuchada | Counter | `spotify_transformed` |
-| Artista con mas streams | Counter | `spotify_transformed` |
-| Promedio de streams | Counter | `spotify_transformed` |
-| Top 20 Canciones | Bar chart | `spotify_transformed` |
-| Top 10 Artistas | Bar chart | `spotify_transformed` |
-| Energia vs Danceability | Scatter plot | `spotify_transformed` |
-| Explicitas vs No Explicitas | Pie chart | `spotify_transformed` |
-| Popularidad Alta / Media / Baja | Pie chart | `spotify_transformed` |
-| Major vs Global Market | Bar chart | `spotify_transformed` |
-| Canciones por año de lanzamiento | Bar chart | `spotify_transformed` |
-
----
-
 ## Estructura del Proyecto
 
 ```
@@ -105,9 +112,11 @@ spotify-medallion/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml                   # Pipeline CI/CD GitHub Actions
-├── images/
-│   └── dashboard.jpg                    # Captura del dashboard
-├── Preparacion_Ambiente.ipynb           # Creacion de catalog, schemas y tablas Delta
+├── evidencias/
+│   ├── Arquitectura.png                 # Diagrama de arquitectura
+│   ├── azure_services.png               # Captura servicios Azure
+│   └── CICD_ETL.png                    # Diagrama CI/CD
+├── Preparacion_Ambiente.ipynb           # Creacion de catalog, 
 ├── Ingest_Tracks_Data.ipynb             # Bronze: spotify_alltime_top100_songs.csv
 ├── Ingest_Spotify_Charts.ipynb          # Bronze: spotify_wrapped_2025_top50_songs.csv
 ├── Transform.ipynb                      # Silver: limpieza, join y enriquecimiento
@@ -119,15 +128,6 @@ spotify-medallion/
 ```
 
 ---
-
-## Fuentes de Datos
-
-| Archivo | Descripcion | Columnas clave |
-|---|---|---|
-| `spotify_alltime_top100_songs.csv` | Ranking historico de canciones | alltime_rank, song_title, artist, total_streams_billions |
-| `spotify_wrapped_2025_top50_songs.csv` | Wrapped 2025 top 50 | wrapped_2025_rank, song_title, streams_2025_billions |
-
-Ubicacion en ADLS: `abfss://raw@adlsantodata1703.dfs.core.windows.net/`
 
 ---
 
@@ -141,18 +141,6 @@ Ubicacion en ADLS: `abfss://raw@adlsantodata1703.dfs.core.windows.net/`
 - Cuenta de GitHub con permisos de administrador en el repositorio
 
 ---
-
-## Servicios Aprovisionados en Azure
-
-![Servicios Azure](./evidencias/azure_services.png)
-
-| Servicio | Nombre | Tipo |
-|---|---|---|
-| Access Connector | ac-antodata | Access Connector for Azure Databricks |
-| Azure Databricks Dev | adbantodata1403 | Azure Databricks Service |
-| Azure Databricks Prod | adbantodata1503prod | Azure Databricks Service |
-| Data Factory | adfantodata2603 | Data Factory V2 |
-| Storage Account | adlsantodata1703 | Azure Data Lake Storage Gen2 |
 
 ---
 
@@ -188,6 +176,12 @@ catalog_au.exploratory
 ---
 
 ## CI/CD con GitHub Actions
+
+![Arquitectura CI/CD](./CICD_ETL.jpg)
+
+
+----
+
 
 ### Como funciona
 
@@ -272,3 +266,36 @@ Ir al tab `Actions` del repositorio. Cada push genera una ejecucion nueva donde 
 - GitHub (control de versiones)
 - Databricks Dashboards (visualizacion)
 
+
+------
+
+
+## Dashboard
+
+![Dashboard Spotify Analytics](./evidencias/dashboard.png)
+
+El dashboard fue construido en Databricks con las siguientes visualizaciones:
+
+| Visualizacion | Tipo | Fuente |
+|---|---|---|
+| Total canciones | Counter | `spotify_transformed` |
+| Cancion mas escuchada | Counter | `spotify_transformed` |
+| Artista con mas streams | Counter | `spotify_transformed` |
+| Promedio de streams | Counter | `spotify_transformed` |
+| Top 20 Canciones | Bar chart | `spotify_transformed` |
+| Top 10 Artistas | Bar chart | `spotify_transformed` |
+| Energia vs Danceability | Scatter plot | `spotify_transformed` |
+| Explicitas vs No Explicitas | Pie chart | `spotify_transformed` |
+| Popularidad Alta / Media / Baja | Pie chart | `spotify_transformed` |
+| Major vs Global Market | Bar chart | `spotify_transformed` |
+| Canciones por año de lanzamiento | Bar chart | `spotify_transformed` |
+
+## Autor
+
+**Manuel Anthony Pardave Patiño**
+
+Data Engineering | Azure Databricks | Delta Lake | CI/CD
+
+- Proyecto: Data Engineering — Arquitectura Medallion
+- Tecnologia: Azure Databricks + Delta Lake + CI/CD
+- Ultima actualizacion: 2026
