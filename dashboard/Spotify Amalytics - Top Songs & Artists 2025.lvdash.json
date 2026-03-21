@@ -1,0 +1,746 @@
+{
+  "datasets": [
+    {
+      "name": "3f5450e6",
+      "displayName": "spotify_transformed",
+      "queryLines": [
+        "SELECT (*) FROM catalog_au.silver.spotify_transformed"
+      ]
+    },
+    {
+      "name": "ff1cb990",
+      "displayName": "Top 20 Canciones",
+      "queryLines": [
+        "SELECT\r\n",
+        "    track_name,\r\n",
+        "    artist_name,\r\n",
+        "    ROUND(streams, 2) AS streams_billions\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "ORDER BY streams DESC\r\n",
+        "LIMIT 20;"
+      ]
+    },
+    {
+      "name": "4a354223",
+      "displayName": "Top 10 Artistas",
+      "queryLines": [
+        "SELECT\r\n",
+        "    artist_name,\r\n",
+        "    COUNT(*)               AS apariciones,\r\n",
+        "    ROUND(SUM(streams), 2) AS total_streams\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "GROUP BY artist_name\r\n",
+        "ORDER BY total_streams DESC\r\n",
+        "LIMIT 10;"
+      ]
+    },
+    {
+      "name": "b31ee6c7",
+      "displayName": "Explicitas vs No Explicitas",
+      "queryLines": [
+        "SELECT\r\n",
+        "    CASE WHEN explicit = true THEN 'Explicita' ELSE 'No Explicita' END AS tipo,\r\n",
+        "    COUNT(*) AS total_canciones\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "GROUP BY explicit;"
+      ]
+    },
+    {
+      "name": "a5fd4897",
+      "displayName": "Distribucion por Popularidad",
+      "queryLines": [
+        "SELECT\r\n",
+        "    popularity_category,\r\n",
+        "    COUNT(*) AS total_canciones\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "GROUP BY popularity_category;"
+      ]
+    },
+    {
+      "name": "ab8db3a6",
+      "displayName": "Major Market vs Global Market",
+      "queryLines": [
+        "SELECT\r\n",
+        "    market_type,\r\n",
+        "    ROUND(AVG(streams), 2) AS avg_streams,\r\n",
+        "    COUNT(*)               AS total_tracks\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "GROUP BY market_type;"
+      ]
+    },
+    {
+      "name": "8b76620e",
+      "displayName": "Energia vs Danceability",
+      "queryLines": [
+        "SELECT\r\n",
+        "    track_name,\r\n",
+        "    artist_name,\r\n",
+        "    ROUND(danceability, 2) AS danceability,\r\n",
+        "    ROUND(energy, 2)       AS energy,\r\n",
+        "    ROUND(streams, 2)      AS streams\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "ORDER BY streams DESC\r\n",
+        "LIMIT 20;"
+      ]
+    },
+    {
+      "name": "799bc215",
+      "displayName": "Summary of Spotify Streams and Country Stats",
+      "queryLines": [
+        "SELECT\r\n",
+        "    COUNT(*)                    AS total_canciones,\r\n",
+        "    MAX(streams)                AS max_streams,\r\n",
+        "    ROUND(AVG(streams), 2)      AS promedio_streams,\r\n",
+        "    COUNT(DISTINCT country)     AS total_paises\r\n",
+        "FROM catalog_au.silver.spotify_transformed;"
+      ]
+    },
+    {
+      "name": "edc240ac",
+      "displayName": "Spotify Stream Statistics Overview",
+      "queryLines": [
+        "SELECT DISTINCT market_type, country\r\n",
+        "FROM catalog_au.silver.spotify_transformed\r\n",
+        "ORDER BY market_type"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "5a35864d",
+      "displayName": "Summary",
+      "layout": [
+        {
+          "widget": {
+            "name": "4e04176c",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Spotify Amalytics - Top Songs & Artists 2025"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "8a537060",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total canciones "
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "displayName": "Count of Records"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "c532be56",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "track_name",
+                      "expression": "`track_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Cancion mas escuchada\n"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "track_name",
+                  "displayName": "Number Trips"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "b8cb1290",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "artist_name",
+                      "expression": "`artist_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Artista con mas streams"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "artist_name",
+                  "displayName": "Number Trips"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "5bb9b341",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "avg(streams)",
+                      "expression": "AVG(`streams`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Promedio de streams"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(streams)",
+                  "displayName": "Number Trips"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "top-20-canciones",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ff1cb990",
+                  "fields": [
+                    {
+                      "name": "track_name",
+                      "expression": "`track_name`"
+                    },
+                    {
+                      "name": "sum(streams_billions)",
+                      "expression": "SUM(`streams_billions`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Top 20 Canciones"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "track_name",
+                  "displayName": "Cancion",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(streams_billions)",
+                  "displayName": "Streams (Billions)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 7,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "23968afb",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4a354223",
+                  "fields": [
+                    {
+                      "name": "artist_name",
+                      "expression": "`artist_name`"
+                    },
+                    {
+                      "name": "sum(total_streams)",
+                      "expression": "SUM(`total_streams`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Top 10 Artistas"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "artist_name",
+                  "displayName": "Artista",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_streams)",
+                  "displayName": "Total Streams",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 3,
+            "width": 5,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "11374dc4",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b31ee6c7",
+                  "fields": [
+                    {
+                      "name": "sum(total_canciones)",
+                      "expression": "SUM(`total_canciones`)"
+                    },
+                    {
+                      "name": "tipo",
+                      "expression": "`tipo`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Distribucion por Popularidad"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(total_canciones)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Total Canciones"
+                },
+                "color": {
+                  "fieldName": "tipo",
+                  "displayName": "Tipo de Contenido",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 7,
+            "width": 5,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "508e57c8",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "8b76620e",
+                  "fields": [
+                    {
+                      "name": "danceability",
+                      "expression": "`danceability`"
+                    },
+                    {
+                      "name": "energy",
+                      "expression": "`energy`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Energia vs Danceability"
+              },
+              "mark": {
+                "size": 2.1
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "danceability",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "energy",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 7,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "popularidad-alta-media-baja",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "count(track_name)",
+                      "expression": "COUNT(`track_name`)"
+                    },
+                    {
+                      "name": "popularity_category",
+                      "expression": "`popularity_category`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "IN_RANGE(`duration_ms`, NULL, NULL)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Popularidad Alta / Media / Baja"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(track_name)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Total Canciones"
+                },
+                "color": {
+                  "fieldName": "popularity_category",
+                  "displayName": "Nivel de Popularidad",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "major-vs-global-market",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "market_type",
+                      "expression": "`market_type`"
+                    },
+                    {
+                      "name": "count(streams)",
+                      "expression": "COUNT(`streams`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Major vs Global Market"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "market_type",
+                  "displayName": "Tipo de Mercado",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(streams)",
+                  "displayName": "Total Canciones",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 11,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "canciones-por-ano-de-lanzamiento",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3f5450e6",
+                  "fields": [
+                    {
+                      "name": "release_date",
+                      "expression": "`release_date`"
+                    },
+                    {
+                      "name": "countdistinct(track_name)",
+                      "expression": "COUNT(DISTINCT `track_name`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Canciones por año de lanzamiento"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "release_date",
+                  "displayName": "Año",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "countdistinct(track_name)",
+                  "displayName": "Total Canciones",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 11,
+            "width": 4,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "e247ac30",
+      "displayName": "Untitled page",
+      "pageType": "PAGE_TYPE_CANVAS"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "genieSpace": {
+      "isEnabled": true,
+      "enablementMode": "ENABLED"
+    },
+    "applyModeEnabled": false
+  }
+}
