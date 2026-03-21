@@ -77,7 +77,7 @@ Vistas para Dashboard:
 
 ## Dashboard
 
-![Dashboard Spotify Analytics](./images/dashboard.jpg)
+![Dashboard Spotify Analytics](./evidencias/dashboard.jpg)
 
 El dashboard fue construido en Databricks con las siguientes visualizaciones:
 
