@@ -1,8 +1,4 @@
-# PROYECTO_DATABRICKS
-Proyecto final curso Ingeniería de datos e IA con Databricks - SmartData
-
-
-#Spotify Medallion ETL Pipeline
+# Spotify Analytics — Top Songs & Artists 2025
 ## Arquitectura Medallion en Azure Databricks
 
 Pipeline automatizado de datos para analisis de canciones y charts de Spotify implementando la Arquitectura Medallion (Bronze-Silver-Golden) en Azure Databricks con Unity Catalog, Delta Lake y despliegue continuo via GitHub Actions.
@@ -29,8 +25,10 @@ Bronze Layer  (Ingesta sin transformacion)
 Silver Layer  (Limpieza + Transformaciones + Join)
     |
 Golden Layer  (Agregaciones de negocio)
+    |
+Dashboard Databricks (Visualizacion)
 ```
-![Texto descriptivo](Arquitectura.png)
+
 ---
 
 ## Capas del Pipeline
@@ -56,9 +54,9 @@ Tablas:
 
 Transformaciones aplicadas:
 - Limpieza de nulos
-- UDF de categoria de popularidad (Baja / Media / Alta)
+- UDF de categoria de popularidad con umbrales ajustados a billions (Baja / Media / Alta)
 - Calculo de dias desde el chart (`days_since_chart`)
-- Clasificacion de mercado (`market_type`: Major Market / Global Market)
+- Clasificacion de mercado (`market_type`: Major Market / Global Market) basado en paises reales del dataset
 - Clasificacion de duracion (`track_duration_type`: Long Track / Standard Track)
 
 ### Golden Layer
@@ -66,6 +64,36 @@ Proposito: Analytics-ready
 
 Tablas:
 - `spotify_final_summary` — Agregacion por fecha con metricas de streams, pais, mercado y nivel de popularidad
+
+Vistas para Dashboard:
+- `vw_top20_canciones`
+- `vw_top10_artistas`
+- `vw_explicitas`
+- `vw_popularidad`
+- `vw_market`
+- `vw_energia_dance`
+
+---
+
+## Dashboard
+
+![Dashboard Spotify Analytics](./images/dashboard.jpg)
+
+El dashboard fue construido en Databricks con las siguientes visualizaciones:
+
+| Visualizacion | Tipo | Fuente |
+|---|---|---|
+| Total canciones | Counter | `spotify_transformed` |
+| Cancion mas escuchada | Counter | `spotify_transformed` |
+| Artista con mas streams | Counter | `spotify_transformed` |
+| Promedio de streams | Counter | `spotify_transformed` |
+| Top 20 Canciones | Bar chart | `spotify_transformed` |
+| Top 10 Artistas | Bar chart | `spotify_transformed` |
+| Energia vs Danceability | Scatter plot | `spotify_transformed` |
+| Explicitas vs No Explicitas | Pie chart | `spotify_transformed` |
+| Popularidad Alta / Media / Baja | Pie chart | `spotify_transformed` |
+| Major vs Global Market | Bar chart | `spotify_transformed` |
+| Canciones por año de lanzamiento | Bar chart | `spotify_transformed` |
 
 ---
 
@@ -77,11 +105,16 @@ spotify-medallion/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml                   # Pipeline CI/CD GitHub Actions
+├── images/
+│   └── dashboard.jpg                    # Captura del dashboard
 ├── Preparacion_Ambiente.ipynb           # Creacion de catalog, schemas y tablas Delta
 ├── Ingest_Tracks_Data.ipynb             # Bronze: spotify_alltime_top100_songs.csv
 ├── Ingest_Spotify_Charts.ipynb          # Bronze: spotify_wrapped_2025_top50_songs.csv
 ├── Transform.ipynb                      # Silver: limpieza, join y enriquecimiento
 ├── Load.ipynb                           # Golden: agregaciones finales
+├── Dashboard_Spotify.ipynb              # Vistas y queries del dashboard
+├── Grants_Spotify_Medallion.ipynb       # Control de acceso Unity Catalog
+├── Drop_Spotify_Medallion.ipynb         # Eliminacion de tablas y schemas
 └── README.md
 ```
 
@@ -106,6 +139,20 @@ Ubicacion en ADLS: `abfss://raw@adlsantodata1703.dfs.core.windows.net/`
 - Azure Data Lake Storage Gen2 configurado (`adlsantodata1703`)
 - External Location configurada sobre `unit-catalog` para managed storage
 - Cuenta de GitHub con permisos de administrador en el repositorio
+
+---
+
+## Servicios Aprovisionados en Azure
+
+![Servicios Azure](./evidencias/azure_services.png)
+
+| Servicio | Nombre | Tipo |
+|---|---|---|
+| Access Connector | ac-antodata | Access Connector for Azure Databricks |
+| Azure Databricks Dev | adbantodata1403 | Azure Databricks Service |
+| Azure Databricks Prod | adbantodata1503prod | Azure Databricks Service |
+| Data Factory | adfantodata2603 | Data Factory V2 |
+| Storage Account | adlsantodata1703 | Azure Data Lake Storage Gen2 |
 
 ---
 
@@ -135,13 +182,12 @@ catalog_au.exploratory
 3. Ingest_Spotify_Charts.ipynb   -- Cargar Wrapped 2025 a Bronze
 4. Transform.ipynb               -- Transformar y join a Silver
 5. Load.ipynb                    -- Agregar y cargar a Golden
+6. Dashboard_Spotify.ipynb       -- Crear vistas para el dashboard
 ```
 
 ---
 
 ## CI/CD con GitHub Actions
-
-![Texto descriptivo](CICD_ETL.jpg)
 
 ### Como funciona
 
@@ -167,8 +213,6 @@ Monitorear ejecucion por hasta 10 minutos
 
 ### Workflow WF_ADB
 
-El workflow creado en Databricks tiene 5 tareas con dependencias en cadena:
-
 ```
 Preparacion_Ambiente
         |
@@ -185,42 +229,22 @@ Data       Charts
       Load
 ```
 
-Ingest_Tracks_Data e Ingest_Spotify_Charts corren en paralelo despues de Preparacion_Ambiente. Transform espera a que ambos terminen antes de ejecutarse.
-
 ### Configuracion de GitHub Secrets
 
-En tu repositorio ve a: Settings → Secrets and variables → Actions
-
-| Secret | Descripcion | Ejemplo |
-|---|---|---|
-| `DATABRICKS_ORIGIN_HOST` | URL del workspace de desarrollo | `https://adb-xxxx.azuredatabricks.net` |
-| `DATABRICKS_ORIGIN_TOKEN` | Token del workspace de desarrollo | `dapi_xxxxxxxx` |
-| `DATABRICKS_DEST_HOST` | URL del workspace de produccion | `https://adb-yyyy.azuredatabricks.net` |
-| `DATABRICKS_DEST_TOKEN` | Token del workspace de produccion | `dapi_yyyyyyyy` |
-
-### Como generar un Databricks Token
-
-1. Ir a Databricks Workspace
-2. Click en tu perfil (esquina superior derecha)
-3. Settings → Developer → Access Tokens
-4. Click en Generate New Token
-5. Comment: `GitHub CI/CD` — Lifetime: `90 days`
-6. Copiar y guardar el token inmediatamente
-
-### Pasos del yml explicados
-
-| Paso | Descripcion |
+| Secret | Descripcion |
 |---|---|
-| Checkout Repository | Clona el repositorio en el runner de GitHub |
-| Export notebooks | Exporta los 5 notebooks desde el workspace de desarrollo en formato SOURCE |
-| Deploy notebooks | Importa los notebooks al workspace de produccion en `/proyecto/smartdata` |
-| Check workflow exists | Busca si ya existe WF_ADB y lo elimina para evitar duplicados |
-| Get cluster ID | Busca el cluster `cluster_SD` por nombre y obtiene su ID dinamicamente |
-| Create workflow WF_ADB | Crea el workflow con las 5 tareas, dependencias y parametros configurados |
-| Validate workflow | Verifica que el workflow se creo correctamente y muestra el resumen de tareas |
-| Execute workflow | Dispara la ejecucion del workflow WF_ADB via API |
-| Monitor execution | Monitorea el estado cada 30 segundos por un maximo de 10 minutos |
-| Clean up | Elimina archivos temporales del runner |
+| `DATABRICKS_ORIGIN_HOST` | URL del workspace de desarrollo |
+| `DATABRICKS_ORIGIN_TOKEN` | Token del workspace de desarrollo |
+| `DATABRICKS_DEST_HOST` | URL del workspace de produccion |
+| `DATABRICKS_DEST_TOKEN` | Token del workspace de produccion |
+
+### Despliegue Manual desde GitHub
+
+1. Ir al tab `Actions` en el repositorio
+2. Seleccionar `Dynamic Databricks Notebook Deploy`
+3. Click en `Run workflow`
+4. Seleccionar rama `main`
+5. Click en `Run workflow`
 
 ---
 
@@ -246,3 +270,5 @@ Ir al tab `Actions` del repositorio. Cada push genera una ejecucion nueva donde 
 - Key Vault (seguridad)
 - GitHub Actions (CI/CD)
 - GitHub (control de versiones)
+- Databricks Dashboards (visualizacion)
+
